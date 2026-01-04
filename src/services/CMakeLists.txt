@@ -3,6 +3,7 @@ add_library(touchdown-services STATIC
     power_service.cpp
     input_service.cpp
     dbus_interface.cpp
+    app_manager.cpp
 )
 
 target_include_directories(touchdown-services PUBLIC
@@ -12,6 +13,7 @@ target_include_directories(touchdown-services PUBLIC
 target_link_libraries(touchdown-services
     touchdown-core
     touchdown-drivers
+    touchdown_app
     ${DBUS_LIBRARIES}
     ${SYSTEMD_LIBRARIES}
 )

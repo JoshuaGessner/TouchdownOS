@@ -20,7 +20,8 @@ constexpr uint32_t TIME_UPDATE_INTERVAL_MS = 1000;  // Update time every second
 Shell::Shell()
     : state_(ShellState::HOME)
     , running_(false)
-    , last_time_update_(0) {
+    , last_time_update_(0)
+    , last_update_ms_(0) {
 }
 
 Shell::~Shell() {
@@ -62,7 +63,21 @@ bool Shell::init() {
     
     // Create main screen
     screen_ = lv_scr_act();
+    app container
+    app_container_ = lv_obj_create(screen_);
+    lv_obj_set_size(app_container_, LV_PCT(100), LV_PCT(100));
+    lv_obj_set_style_bg_opa(app_container_, LV_OPA_TRANSP, 0);
+    lv_obj_set_style_border_width(app_container_, 0, 0);
+    lv_obj_add_flag(app_container_, LV_OBJ_FLAG_HIDDEN);
     
+    // Initialize app manager
+    app_manager_ = std::make_unique<services::AppManager>();
+    if (!app_manager_->init()) {
+        LOG_ERROR("Shell", "Failed to initialize app manager");
+        return false;
+    }
+    
+    // Create 
     // Create UI components
     home_screen_ = std::make_unique<HomeScreen>();
     home_screen_->create(screen_);
@@ -100,11 +115,19 @@ void Shell::setup_input_handlers() {
         on_button(e);
     });
 }
-
-void Shell::run() {
-    running_ = true;
-    
-    // Notify systemd we're ready
+uint32_t now = Utils::get_timestamp_ms();
+        
+        // Update time periodically
+        if (now - last_time_update_ >= TIME_UPDATE_INTERVAL_MS) {
+            update_time();
+            last_time_update_ = now;
+        }
+        
+        // Update app manager and active apps
+        if (app_manager_) {
+            uint32_t delta_ms = last_update_ms_ > 0 ? now - last_update_ms_ : 0;
+            app_manager_->update(delta_ms);
+            last_update_msready
     sd_notify(0, "READY=1");
     LOG_INFO("Shell", "Shell running");
     
@@ -150,25 +173,81 @@ void Shell::on_touch(const TouchPoint& point) {
                 show_launcher();
             }
             break;
+            Forward input to active app
+            if (app_manager_) {
+                if (point.type == TouchEventType::SWIPE_DOWN) {
+                    // Back gesture - close app and go home
+                    auto* active = app_manager_->get_active_app();
+                    if (active) {
+                        if (!active->on_back()) {
+                            // App didn't handle back - close it
+    // Forward to app if running
+    if (state_ == ShellState::APP_RUNNING && app_manager_) {
+        if (app_manager_->handle_button(event)) {
+            return;  // App handled the button
+        }
+    }
+    
+    switch (event.type) {
+        case ButtonEventType::SINGLE_PRESS:
+            if (state_ == ShellState::APP_RUNNING) {
+                // Back from app
+                auto* active = app_manager_->get_active_app();
+                if (active) {
+                    std::string app_id = active->get_metadata().id;
+                    app_manager_->terminate_app(app_id);
+                }
+                go_home();
+            } else {
+                // Toggle display power via D-Bus call to power service
+                LOG_INFO("Shell", "Toggle display power");
+            }
+            break;
             
-        case ShellState::APP_LAUNCHER:
-            if (point.type == TouchEventType::SWIPE_DOWN) {
+        case ButtonEventType::DOUBLE_PRESS:
+            // User-configurable action
+            if (state_ == ShellState::HOME) {
+                show_launcher();
+            } else if (state_ == ShellState::APP_LAUNCHER) {
+                go_home();
+            } else {
+                // In app - go home
+                auto* active = app_manager_->get_active_app();
+                if (active) {
+                    std::string app_id = active->get_metadata().id;
+                    app_manager_->terminate_app(app_id);
+                }t.type == TouchEventType::SWIPE_DOWN) {
                 go_home();
             }
             break;
             
         case ShellState::APP_RUNNING:
+    // Hide app container
+    lv_obj_add_flag(app_container_, LV_OBJ_FLAG_HIDDEN);
+    
             // App handles its own input
             break;
     }
 }
 
-void Shell::on_button(const ButtonEvent& event) {
-    LOG_INFO("Shell", "Button: ", static_cast<int>(event.type));
+voidif (!app_manager_) {
+        LOG_ERROR("Shell", "App manager not initialized");
+        return;
+    }
     
-    switch (event.type) {
-        case ButtonEventType::SINGLE_PRESS:
-            // Toggle display power via D-Bus call to power service
+    // Launch app via app manager
+    if (app_manager_->launch_app(app_id, app_container_)) {
+        change_state(ShellState::APP_RUNNING);
+        app_launcher_->animate_hide();
+        home_screen_->hide();
+        
+        // Show app container
+        lv_obj_clear_flag(app_container_, LV_OBJ_FLAG_HIDDEN);
+        
+        LOG_INFO("Shell", "App launched successfully: ", app_id);
+    } else {
+        LOG_ERROR("Shell", "Failed to launch app: ", app_id);
+    }
             LOG_INFO("Shell", "Toggle display power");
             break;
             

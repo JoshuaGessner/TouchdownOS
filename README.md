@@ -15,9 +15,22 @@ A custom wearable Linux operating environment with a fully custom graphical shel
 TouchdownOS is a layered system:
 
 1. **Kernel/Drivers Layer** - DRM/KMS display, I2C touch, GPIO button
-2. **System Services Layer** - Power management, input handling, network, D-Bus IPC
-3. **LVGL Shell Layer** - Core UI, theme engine, home screen/watch face
-4. **Applications Layer** - C++ system apps and Python user apps
+2. **System Services Layer** - Power management, input handling, app manager, D-Bus IPC
+3. **LVGL Shell Layer** - Core UI, theme engine, home screen, app launcher
+4. **Applications Layer** - C++ system apps and Python user apps with full API access
+
+### App Framework
+
+TouchdownOS provides a comprehensive app framework with:
+
+- **TouchdownApp Base Class**: Full lifecycle management (init/show/hide/pause/resume/update)
+- **Python Bindings**: pybind11-based Python API for rapid development
+- **LVGL Widget API**: Complete access to LVGL UI widgets and styling
+- **Input Handling**: Touch gestures, button events, back navigation
+- **Manifest System**: JSON-based app metadata with permissions
+- **AppManager Service**: Process management and resource isolation
+
+See [docs/app-framework.md](docs/app-framework.md) for complete API documentation.
 
 ## Build Requirements
 
@@ -41,7 +54,7 @@ git submodule update --init --recursive
 
 ## Building
 
-### Native Build (for development)
+### Native Build (for development/testing on x86_64)
 ```bash
 mkdir build && cd build
 cmake ..
@@ -49,17 +62,32 @@ make -j$(nproc)
 ```
 
 ### Cross-Compilation for Pi Zero 2 W
+
+**Prerequisites:**
+```bash
+# Install ARM cross-compiler
+sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+
+# Install ARM libraries (optional, for pkg-config)
+sudo apt-get install libdrm-dev:armhf libdbus-1-dev:armhf libsystemd-dev:armhf
+```
+
+**Build:**
 ```bash
 mkdir build-arm && cd build-arm
-cmake -DCROSS_COMPILE=ON ..
+cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm-pi-toolchain.cmake ..
 make -j$(nproc)
+```
+
+**Install to staging directory:**
+```bash
 sudo make install DESTDIR=./rootfs
 ```
 
-### Create Debian Package
+**Create Debian Package:**
 ```bash
-cd build-arm
 cpack
+# Produces: touchdownos_0.1.0_armhf.deb
 ```
 
 ## Installation on Raspberry Pi
@@ -74,7 +102,45 @@ cpack
 
 ## Development
 
-See [docs/development.md](docs/development.md) for detailed development guidelines.
+### Creating Apps
+
+TouchdownOS supports both C++ and Python apps with the same powerful API:
+
+**C++ Example:**
+```cpp
+class MyApp : public touchdown::app::TouchdownApp {
+public:
+    bool init(lv_obj_t* parent) override {
+        create_container(parent);
+        lv_obj_t* label = lv_label_create(container_);
+        lv_label_set_text(label, "Hello!");
+        return true;
+    }
+    // ... lifecycle methods
+};
+REGISTER_APP(MyApp, "com.example.myapp")
+```
+
+**Python Example:**
+```python
+import touchdown as td
+
+class MyApp(td.TouchdownApp):
+    def init(self, parent):
+        container = self.get_container()
+        label = td.Widget.create_label(container, "Hello!")
+        td.Widget.align(label, td.ALIGN_CENTER, 0, 0)
+        return True
+```
+
+See [docs/app-framework.md](docs/app-framework.md) for complete development guide.
+
+### Documentation
+
+- [Architecture](docs/architecture.md) - System design and components
+- [Building](docs/building.md) - Detailed build instructions and troubleshooting
+- [Development](docs/development.md) - Development workflow and guidelines
+- [App Framework](docs/app-framework.md) - Complete app API reference
 
 ## License
 

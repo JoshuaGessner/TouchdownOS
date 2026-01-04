@@ -1,0 +1,15 @@
+{
+  "id": "info",
+  "name": "System Info",
+  "version": "1.0.0",
+  "description": "Display system information and statistics",
+  "icon": "ℹ",
+  "color": "#2196F3",
+  "type": "cpp",
+  "main": "libtouchdown_info.so",
+  "permissions": [
+    "system.stats"
+  ],
+  "author": "TouchdownOS Team",
+  "category": "system"
+}

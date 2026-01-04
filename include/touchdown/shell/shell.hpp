@@ -11,6 +11,7 @@
 #include "touchdown/drivers/button_driver.hpp"
 #include "touchdown/shell/home_screen.hpp"
 #include "touchdown/shell/app_launcher.hpp"
+#include "touchdown/services/app_manager.hpp"
 #include <memory>
 #include <atomic>
 
@@ -74,11 +75,16 @@ private:
     lv_obj_t* screen_;
     std::unique_ptr<HomeScreen> home_screen_;
     std::unique_ptr<AppLauncher> app_launcher_;
+    lv_obj_t* app_container_;  // Container for running apps
+    
+    // Services
+    std::unique_ptr<services::AppManager> app_manager_;
     
     // State
     ShellState state_;
     std::atomic<bool> running_;
     uint32_t last_time_update_;
+    uint32_t last_update_ms_;
 };
 
 } // namespace shell

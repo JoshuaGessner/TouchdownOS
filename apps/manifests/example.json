@@ -1,0 +1,13 @@
+{
+  "id": "com.touchdown.example",
+  "name": "Example Python",
+  "version": "1.0.0",
+  "description": "Example Python app demonstrating the API",
+  "icon": "⚡",
+  "color": "#4CAF50",
+  "type": "python",
+  "main": "example_app.py",
+  "permissions": [],
+  "author": "TouchdownOS Team",
+  "category": "examples"
+}

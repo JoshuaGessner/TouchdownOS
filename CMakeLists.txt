@@ -5,21 +5,9 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Options for cross-compilation
-option(CROSS_COMPILE "Enable cross-compilation for Raspberry Pi Zero 2 W" OFF)
+# Options
 option(BUILD_TESTS "Build unit tests" OFF)
 option(ENABLE_DEBUG "Enable debug symbols and logging" ON)
-
-# Cross-compilation toolchain detection
-if(CROSS_COMPILE)
-    set(CMAKE_SYSTEM_NAME Linux)
-    set(CMAKE_SYSTEM_PROCESSOR arm)
-    set(CMAKE_C_COMPILER arm-linux-gnueabihf-gcc)
-    set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
-    set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-    set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-    set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-endif()
 
 # Build configuration
 if(ENABLE_DEBUG)
@@ -32,6 +20,7 @@ endif()
 
 # Find required packages
 find_package(PkgConfig REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development)
 
 pkg_check_modules(DRM REQUIRED libdrm)
 pkg_check_modules(DBUS REQUIRED dbus-1)

@@ -1,0 +1,16 @@
+{
+  "id": "settings",
+  "name": "Settings",
+  "version": "1.0.0",
+  "description": "System settings and configuration",
+  "icon": "⚙",
+  "color": "#607D8B",
+  "type": "cpp",
+  "main": "libtouchdown_settings.so",
+  "permissions": [
+    "system.settings",
+    "power.control"
+  ],
+  "author": "TouchdownOS Team",
+  "category": "system"
+}
