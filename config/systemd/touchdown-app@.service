@@ -1,0 +1,40 @@
+[Unit]
+Description=TouchdownOS Application: %i
+Documentation=https://github.com/touchdownos/touchdown
+BindsTo=touchdown-shell.service
+After=touchdown-shell.service
+
+[Service]
+Type=simple
+ExecStart=/usr/share/touchdown/apps/%i/start.sh
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=3
+
+# Watchdog for app health
+WatchdogSec=60s
+
+# Environment
+Environment="TOUCHDOWN_APP_NAME=%i"
+Environment="TOUCHDOWN_APP_DIR=/usr/share/touchdown/apps/%i"
+
+# Resource limits for user apps
+MemoryMax=128M
+CPUQuota=50%
+TasksMax=64
+
+# Security isolation
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/touchdown/apps/%i
+NoNewPrivileges=yes
+PrivateNetwork=no
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=touchdown-app-%i
+
+[Install]
+WantedBy=touchdown-shell.service

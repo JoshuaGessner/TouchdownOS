@@ -1,0 +1,46 @@
+[Unit]
+Description=TouchdownOS LVGL Shell
+Documentation=https://github.com/touchdownos/touchdown
+After=graphical.target systemd-udev-settle.service
+Requires=graphical.target
+Wants=touchdown-power.service touchdown-input.service
+
+[Service]
+Type=notify
+ExecStart=/usr/bin/touchdown-shell
+Restart=on-failure
+RestartSec=5
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+# Watchdog configuration
+WatchdogSec=30s
+
+# Environment
+Environment="XDG_RUNTIME_DIR=/run/user/1000"
+Environment="TOUCHDOWN_CONFIG_DIR=/etc/touchdown"
+
+# Resource limits
+MemoryMax=256M
+CPUQuota=80%
+
+# Security hardening
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/touchdown /run/touchdown
+NoNewPrivileges=yes
+
+# Allow access to DRM/input devices
+SupplementaryGroups=video input render
+
+# D-Bus integration
+BusName=org.touchdown.Shell
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=touchdown-shell
+
+[Install]
+WantedBy=graphical.target

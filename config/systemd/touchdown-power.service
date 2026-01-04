@@ -1,0 +1,36 @@
+[Unit]
+Description=TouchdownOS Power Management Service
+Documentation=https://github.com/touchdownos/touchdown
+After=systemd-udev-settle.service
+Before=touchdown-shell.service
+
+[Service]
+Type=dbus
+ExecStart=/usr/bin/touchdown-power-service
+Restart=on-failure
+RestartSec=3
+StartLimitBurst=5
+
+# Watchdog
+WatchdogSec=30s
+
+# D-Bus integration
+BusName=org.touchdown.Power
+
+# Allow power management operations
+SupplementaryGroups=video
+
+# Security
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/sys/class/backlight /sys/devices/system/cpu/cpufreq
+NoNewPrivileges=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=touchdown-power
+
+[Install]
+WantedBy=multi-user.target

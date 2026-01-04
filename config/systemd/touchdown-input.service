@@ -1,0 +1,36 @@
+[Unit]
+Description=TouchdownOS Input Management Service
+Documentation=https://github.com/touchdownos/touchdown
+After=systemd-udev-settle.service
+Before=touchdown-shell.service
+
+[Service]
+Type=dbus
+ExecStart=/usr/bin/touchdown-input-service
+Restart=on-failure
+RestartSec=3
+StartLimitBurst=5
+
+# Watchdog
+WatchdogSec=30s
+
+# D-Bus integration
+BusName=org.touchdown.Input
+
+# Allow input device access
+SupplementaryGroups=input gpio
+
+# Security
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/dev/input /sys/class/gpio
+NoNewPrivileges=yes
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=touchdown-input
+
+[Install]
+WantedBy=multi-user.target

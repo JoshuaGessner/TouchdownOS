@@ -1,0 +1,10 @@
+[submodule "third_party/lvgl"]
+	path = third_party/lvgl
+	url = https://github.com/lvgl/lvgl.git
+	branch = release/v9.0
+[submodule "third_party/lv_drivers"]
+	path = third_party/lv_drivers
+	url = https://github.com/lvgl/lv_drivers.git
+[submodule "third_party/msgpack-c"]
+	path = third_party/msgpack-c
+	url = https://github.com/msgpack/msgpack-c.git

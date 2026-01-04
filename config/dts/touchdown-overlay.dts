@@ -1,0 +1,135 @@
+/dts-v1/;
+/plugin/;
+
+/**
+ * Device Tree Overlay for TouchdownOS
+ * Raspberry Pi Zero 2 W with GC9A01 display and CST816S touch
+ */
+
+/ {
+    compatible = "brcm,bcm2837", "brcm,bcm2710";
+
+    fragment@0 {
+        target = <&spi0>;
+        __overlay__ {
+            status = "okay";
+            
+            #address-cells = <1>;
+            #size-cells = <0>;
+            
+            /* GC9A01 Round LCD Display */
+            gc9a01: gc9a01@0 {
+                compatible = "gcnopix,gc9a01";
+                reg = <0>;
+                spi-max-frequency = <32000000>;  /* 32 MHz */
+                
+                /* GPIO pin for DC (Data/Command) */
+                dc-gpios = <&gpio 25 0>;
+                
+                /* GPIO pin for Reset */
+                reset-gpios = <&gpio 27 1>;
+                
+                /* Display dimensions */
+                width = <240>;
+                height = <240>;
+                
+                /* Rotation (0, 90, 180, 270) */
+                rotation = <0>;
+                
+                /* Backlight control (optional) */
+                backlight = <&backlight>;
+                
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@1 {
+        target = <&i2c1>;
+        __overlay__ {
+            status = "okay";
+            
+            #address-cells = <1>;
+            #size-cells = <0>;
+            
+            /* CST816S Capacitive Touch Controller */
+            cst816s: cst816s@15 {
+                compatible = "hynitron,cst816s";
+                reg = <0x15>;
+                
+                /* Interrupt pin */
+                interrupt-parent = <&gpio>;
+                interrupts = <17 2>;  /* GPIO17, falling edge */
+                
+                /* Reset pin */
+                reset-gpios = <&gpio 24 1>;
+                
+                /* Touch screen dimensions */
+                touchscreen-size-x = <240>;
+                touchscreen-size-y = <240>;
+                
+                /* Invert axis if needed */
+                touchscreen-inverted-x;
+                touchscreen-inverted-y;
+                
+                status = "okay";
+            };
+        };
+    };
+
+    fragment@2 {
+        target = <&gpio>;
+        __overlay__ {
+            /* Physical button on GPIO 23 */
+            button_pins: button_pins {
+                brcm,pins = <23>;
+                brcm,function = <0>;  /* Input */
+                brcm,pull = <2>;      /* Pull-up */
+            };
+        };
+    };
+
+    fragment@3 {
+        target-path = "/";
+        __overlay__ {
+            /* Physical button configuration */
+            touchdown_button: touchdown-button {
+                compatible = "gpio-keys";
+                pinctrl-names = "default";
+                pinctrl-0 = <&button_pins>;
+                
+                power-button {
+                    label = "TouchdownOS Power Button";
+                    gpios = <&gpio 23 1>;  /* GPIO23, active low */
+                    linux,code = <116>;    /* KEY_POWER */
+                    debounce-interval = <50>;
+                };
+            };
+            
+            /* Backlight PWM control */
+            backlight: backlight {
+                compatible = "gpio-backlight";
+                gpios = <&gpio 18 0>;
+                default-on;
+            };
+        };
+    };
+
+    /* Enable I2C and SPI */
+    fragment@4 {
+        target = <&i2c1>;
+        __overlay__ {
+            pinctrl-names = "default";
+            pinctrl-0 = <&i2c1_pins>;
+            clock-frequency = <100000>;
+        };
+    };
+
+    fragment@5 {
+        target = <&spi0>;
+        __overlay__ {
+            pinctrl-names = "default";
+            pinctrl-0 = <&spi0_pins>;
+        };
+    };
+};
