@@ -34,60 +34,64 @@ See [docs/app-framework.md](docs/app-framework.md) for complete API documentatio
 
 ## Build Requirements
 
-### Cross-Compilation Toolchain
+1) Enable armhf architecture (needed for ARM libs):
 ```bash
-sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+sudo dpkg --add-architecture armhf
+sudo apt-get update
 ```
 
-### Dependencies
+2) Install host toolchains and common deps:
 ```bash
-sudo apt-get install cmake pkg-config \
-    libdrm-dev libdbus-1-dev libsystemd-dev \
-    libudev-dev libinput-dev \
-    python3-dev python3-pip
+sudo apt-get install \
+    build-essential cmake pkg-config git \
+    gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+    libdrm-dev libdbus-1-dev libsystemd-dev libudev-dev libinput-dev \
+    python3-dev python3-pip pybind11-dev
 ```
 
-### Initialize Submodules
+3) Install ARM target libs (for pkg-config when cross-compiling):
+```bash
+sudo apt-get install libdrm-dev:armhf libdbus-1-dev:armhf libsystemd-dev:armhf
+```
+
+4) Initialize submodules (LVGL, drivers, msgpack):
 ```bash
 git submodule update --init --recursive
 ```
 
 ## Building
 
-### Native Build (for development/testing on x86_64)
+### Cross-Compilation for Pi Zero 2 W (recommended for target testing)
+
+Fresh configure/build (clears any stale CMake cache):
 ```bash
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-```
-
-### Cross-Compilation for Pi Zero 2 W
-
-**Prerequisites:**
-```bash
-# Install ARM cross-compiler
-sudo apt-get install gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf
-
-# Install ARM libraries (optional, for pkg-config)
-sudo apt-get install libdrm-dev:armhf libdbus-1-dev:armhf libsystemd-dev:armhf
-```
-
-**Build:**
-```bash
+cd /home/josh/dev/TouchdownOS
+rm -rf build-arm
 mkdir build-arm && cd build-arm
 cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/arm-pi-toolchain.cmake ..
 make -j$(nproc)
 ```
 
-**Install to staging directory:**
+Create Debian package:
 ```bash
+cd /home/josh/dev/TouchdownOS/build-arm
+cpack
+# Produces: touchdownos_0.1.0_armhf.deb
+```
+
+Install to staging directory (optional for inspecting layout):
+```bash
+cd /home/josh/dev/TouchdownOS/build-arm
 sudo make install DESTDIR=./rootfs
 ```
 
-**Create Debian Package:**
+### Native Build (x86_64 dev/test)
 ```bash
-cpack
-# Produces: touchdownos_0.1.0_armhf.deb
+cd /home/josh/dev/TouchdownOS
+rm -rf build
+mkdir build && cd build
+cmake ..
+make -j$(nproc)
 ```
 
 ## Installation on Raspberry Pi
