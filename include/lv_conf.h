@@ -63,10 +63,15 @@
 
 /* Enable file system (for loading assets) */
 #define LV_USE_FS_POSIX 1
+#define LV_FS_POSIX_LETTER 'A'
+#define LV_FS_POSIX_PATH "/"
 
 /* Disable unnecessary features */
 #define LV_USE_GPU_ARM2D 0
 #define LV_USE_GPU_STM32_DMA2D 0
+
+/* Disable NEON/assembly optimizations to avoid cross-compile issues */
+#define LV_USE_DRAW_SW_ASM LV_DRAW_SW_ASM_NONE
 
 /* Enable draw complex for better gradients and effects */
 #define LV_DRAW_COMPLEX 1
@@ -114,7 +119,7 @@
 #define LV_USE_ROLLER 1
 #define LV_USE_SLIDER 1
 #define LV_USE_SWITCH 1
-#define LV_USE_TEXTAREA 0
+#define LV_USE_TEXTAREA 1
 #define LV_USE_TABLE 0
 
 /*==================

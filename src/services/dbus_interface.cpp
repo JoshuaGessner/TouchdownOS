@@ -30,7 +30,7 @@ bool DBusInterface::init() {
     // Connect to system bus
     connection_ = dbus_bus_get(DBUS_BUS_SYSTEM, &error);
     if (dbus_error_is_set(&error)) {
-        LOG_ERROR("DBusInterface", "Failed to connect to D-Bus: ", error.message);
+        TD_LOG_ERROR("DBusInterface", "Failed to connect to D-Bus: ", error.message);
         dbus_error_free(&error);
         return false;
     }
@@ -40,20 +40,20 @@ bool DBusInterface::init() {
                                      DBUS_NAME_FLAG_REPLACE_EXISTING, &error);
     
     if (dbus_error_is_set(&error)) {
-        LOG_ERROR("DBusInterface", "Failed to request name: ", error.message);
+        TD_LOG_ERROR("DBusInterface", "Failed to request name: ", error.message);
         dbus_error_free(&error);
         return false;
     }
     
     if (ret != DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER) {
-        LOG_ERROR("DBusInterface", "Not primary owner of name: ", service_name_);
+        TD_LOG_ERROR("DBusInterface", "Not primary owner of name: ", service_name_);
         return false;
     }
     
     // Add message filter
     dbus_connection_add_filter(connection_, message_handler, this, nullptr);
     
-    LOG_INFO("DBusInterface", "D-Bus service initialized: ", service_name_);
+    TD_LOG_INFO("DBusInterface", "D-Bus service initialized: ", service_name_);
     return true;
 }
 
@@ -77,7 +77,7 @@ void DBusInterface::send_signal(const std::string& interface, const std::string&
                                                interface.c_str(), 
                                                name.c_str());
     if (!msg) {
-        LOG_ERROR("DBusInterface", "Failed to create signal message");
+        TD_LOG_ERROR("DBusInterface", "Failed to create signal message");
         return;
     }
     
@@ -93,7 +93,7 @@ void DBusInterface::send_signal(const std::string& interface, const std::string&
 
 void DBusInterface::notify_ready() {
     sd_notify(0, "READY=1");
-    LOG_INFO("DBusInterface", "Notified systemd: READY");
+    TD_LOG_INFO("DBusInterface", "Notified systemd: READY");
 }
 
 void DBusInterface::send_watchdog() {

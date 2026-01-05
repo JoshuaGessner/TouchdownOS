@@ -8,6 +8,7 @@
 
 #include "touchdown/app/app.hpp"
 #include <vector>
+#include <functional>
 
 namespace touchdown {
 namespace apps {
@@ -42,6 +43,7 @@ private:
     lv_obj_t* list_;
     std::vector<lv_obj_t*> items_;
     lv_style_t item_style_;
+    std::vector<std::function<void()>> callbacks_;
 };
 
 } // namespace apps

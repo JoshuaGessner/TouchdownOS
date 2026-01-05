@@ -18,7 +18,7 @@ namespace app {
 std::optional<AppMetadata> ManifestParser::parse_file(const std::string& manifest_path) {
     std::ifstream file(manifest_path);
     if (!file.is_open()) {
-        LOG_ERROR("ManifestParser", "Failed to open manifest: ", manifest_path);
+        TD_LOG_ERROR("ManifestParser", "Failed to open manifest: ", manifest_path);
         return std::nullopt;
     }
     
@@ -44,15 +44,15 @@ std::optional<AppMetadata> ManifestParser::parse_file(const std::string& manifes
         
         // Validate
         if (!validate(metadata)) {
-            LOG_ERROR("ManifestParser", "Invalid manifest: ", manifest_path);
+            TD_LOG_ERROR("ManifestParser", "Invalid manifest: ", manifest_path);
             return std::nullopt;
         }
         
-        LOG_INFO("ManifestParser", "Loaded manifest: ", metadata.id);
+        TD_LOG_INFO("ManifestParser", "Loaded manifest: ", metadata.id);
         return metadata;
         
     } catch (const json::exception& e) {
-        LOG_ERROR("ManifestParser", "JSON parse error: ", e.what());
+        TD_LOG_ERROR("ManifestParser", "JSON parse error: ", e.what());
         return std::nullopt;
     }
 }
@@ -82,7 +82,7 @@ std::optional<AppMetadata> ManifestParser::parse_string(const std::string& json_
         return metadata;
         
     } catch (const json::exception& e) {
-        LOG_ERROR("ManifestParser", "JSON parse error: ", e.what());
+        TD_LOG_ERROR("ManifestParser", "JSON parse error: ", e.what());
         return std::nullopt;
     }
 }
@@ -92,13 +92,13 @@ bool ManifestParser::validate(const AppMetadata& metadata) {
     
     if (!result.valid) {
         for (const auto& error : result.errors) {
-            LOG_ERROR("ManifestParser", "Validation error: ", error);
+            TD_LOG_ERROR("ManifestParser", "Validation error: ", error);
         }
         return false;
     }
     
     for (const auto& warning : result.warnings) {
-        LOG_WARNING("ManifestParser", "Validation warning: ", warning);
+        TD_LOG_WARNING("ManifestParser", "Validation warning: ", warning);
     }
     
     return true;

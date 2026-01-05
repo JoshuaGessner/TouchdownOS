@@ -74,12 +74,12 @@ private:
     }
 };
 
-// Convenience macros
-#define LOG_DEBUG(...) touchdown::Logger::instance().debug(__VA_ARGS__)
-#define LOG_INFO(...) touchdown::Logger::instance().info(__VA_ARGS__)
-#define LOG_WARNING(...) touchdown::Logger::instance().warning(__VA_ARGS__)
-#define LOG_ERROR(...) touchdown::Logger::instance().error(__VA_ARGS__)
-#define LOG_CRITICAL(...) touchdown::Logger::instance().critical(__VA_ARGS__)
+// Convenience macros (TD_ prefix to avoid conflicts with syslog.h)
+#define TD_LOG_DEBUG(...) touchdown::Logger::instance().debug(__VA_ARGS__)
+#define TD_LOG_INFO(...) touchdown::Logger::instance().info(__VA_ARGS__)
+#define TD_LOG_WARNING(...) touchdown::Logger::instance().warning(__VA_ARGS__)
+#define TD_LOG_ERROR(...) touchdown::Logger::instance().error(__VA_ARGS__)
+#define TD_LOG_CRITICAL(...) touchdown::Logger::instance().critical(__VA_ARGS__)
 
 } // namespace touchdown
 

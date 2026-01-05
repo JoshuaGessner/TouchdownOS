@@ -23,6 +23,8 @@ struct AppMetadata {
     std::string version;         // Version string
     std::string description;     // App description
     std::string icon;            // Icon symbol or path
+        std::string type;            // App type: "cpp" or "python"
+        std::string executable;      // Executable path for Python apps
     lv_color_t color;           // App color theme
     std::vector<std::string> permissions;  // Required permissions
 };

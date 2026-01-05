@@ -32,13 +32,11 @@ std::vector<ArcPosition> CircularLayout::calculate_circular_positions(
 }
 
 void CircularLayout::apply_circular_mask(lv_obj_t* obj) {
-    // Create circular clip area
-    static lv_draw_mask_radius_param_t mask_param;
-    lv_draw_mask_radius_init(&mask_param, 
-                             DisplayConfig::CENTER_X, 
-                             DisplayConfig::CENTER_Y,
-                             DisplayConfig::RADIUS, 
-                             false);  // Inner radius (false = outer)
+    if (!obj) return;
+
+    // Round the container to the display radius and clip children to the circle
+    lv_obj_set_style_radius(obj, DisplayConfig::RADIUS, 0);
+    lv_obj_set_style_clip_corner(obj, true, 0);
 }
 
 lv_obj_t* CircularLayout::create_circular_container(lv_obj_t* parent) {
@@ -47,6 +45,7 @@ lv_obj_t* CircularLayout::create_circular_container(lv_obj_t* parent) {
     lv_obj_set_size(cont, DisplayConfig::WIDTH, DisplayConfig::HEIGHT);
     lv_obj_set_pos(cont, 0, 0);
     lv_obj_set_style_radius(cont, DisplayConfig::RADIUS, 0);
+    lv_obj_set_style_clip_corner(cont, true, 0);
     lv_obj_set_style_border_width(cont, 0, 0);
     lv_obj_set_style_pad_all(cont, 0, 0);
     lv_obj_clear_flag(cont, LV_OBJ_FLAG_SCROLLABLE);

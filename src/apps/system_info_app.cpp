@@ -4,6 +4,7 @@
  */
 
 #include "touchdown/apps/system_info_app.hpp"
+#include "touchdown/app/app_registry.hpp"
 #include "touchdown/shell/theme_engine.hpp"
 #include "touchdown/core/logger.hpp"
 #include <fstream>
@@ -27,7 +28,7 @@ SystemInfoApp::~SystemInfoApp() {
 }
 
 bool SystemInfoApp::init(lv_obj_t* parent) {
-    LOG_INFO("SystemInfoApp", "Initializing system info app");
+    TD_LOG_INFO("SystemInfoApp", "Initializing system info app");
     
     create_container(parent);
     
@@ -194,7 +195,7 @@ void SystemInfoApp::update(uint32_t delta_ms) {
 }
 
 void SystemInfoApp::cleanup() {
-    LOG_INFO("SystemInfoApp", "Cleanup");
+    TD_LOG_INFO("SystemInfoApp", "Cleanup");
 }
 
 bool SystemInfoApp::on_button(const ButtonEvent& event) {
@@ -209,4 +210,8 @@ bool SystemInfoApp::on_button(const ButtonEvent& event) {
 } // namespace touchdown
 
 // Register the app
-REGISTER_APP(touchdown::apps::SystemInfoApp, "info")
+namespace touchdown {
+namespace apps {
+REGISTER_APP(SystemInfoApp, "info")
+} // namespace apps
+} // namespace touchdown

@@ -15,7 +15,6 @@ target_link_libraries(touchdown_shell
     touchdown_app
     touchdown_apps
     lvgl
-    lv_drivers
     ${DRM_LIBRARIES}
     ${DBUS_LIBRARIES}
     ${SYSTEMD_LIBRARIES}

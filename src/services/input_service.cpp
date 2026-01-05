@@ -54,7 +54,7 @@ bool InputService::init(drivers::TouchDriver* touch, drivers::ButtonDriver* butt
         button_->set_button_callback([this](const ButtonEvent& e) { on_button_event(e); });
     }
     
-    LOG_INFO("InputService", "Input service initialized");
+    TD_LOG_INFO("InputService", "Input service initialized");
     return true;
 }
 
@@ -105,7 +105,7 @@ void InputService::on_touch_event(const TouchPoint& point) {
     
     send_signal(DBUS_INTERFACE, "TouchEvent", signal_data);
     
-    LOG_DEBUG("InputService", "Touch event: ", event_type, " at (", point.x, ",", point.y, ")");
+    TD_LOG_DEBUG("InputService", "Touch event: ", event_type, " at (", point.x, ",", point.y, ")");
 }
 
 void InputService::on_button_event(const ButtonEvent& event) {
@@ -126,7 +126,7 @@ void InputService::on_button_event(const ButtonEvent& event) {
     
     send_signal(DBUS_INTERFACE, "ButtonEvent", signal_data);
     
-    LOG_INFO("InputService", "Button event: ", event_type);
+    TD_LOG_INFO("InputService", "Button event: ", event_type);
 }
 
 DBusMessage* InputService::handle_get_last_touch(DBusMessage* msg) {

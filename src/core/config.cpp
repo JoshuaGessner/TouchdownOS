@@ -18,7 +18,7 @@ Config& Config::instance() {
 bool Config::load(const std::string& config_file) {
     std::ifstream file(config_file);
     if (!file.is_open()) {
-        LOG_WARNING("Config", "Failed to open config file: ", config_file);
+        TD_LOG_WARNING("Config", "Failed to open config file: ", config_file);
         return false;
     }
     
@@ -42,14 +42,14 @@ bool Config::load(const std::string& config_file) {
         }
     }
     
-    LOG_INFO("Config", "Loaded config from: ", config_file);
+    TD_LOG_INFO("Config", "Loaded config from: ", config_file);
     return true;
 }
 
 bool Config::save(const std::string& config_file) {
     std::ofstream file(config_file);
     if (!file.is_open()) {
-        LOG_ERROR("Config", "Failed to save config file: ", config_file);
+        TD_LOG_ERROR("Config", "Failed to save config file: ", config_file);
         return false;
     }
     
@@ -57,7 +57,7 @@ bool Config::save(const std::string& config_file) {
         file << key << "=" << value << "\n";
     }
     
-    LOG_INFO("Config", "Saved config to: ", config_file);
+    TD_LOG_INFO("Config", "Saved config to: ", config_file);
     return true;
 }
 
