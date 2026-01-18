@@ -208,8 +208,8 @@ PYBIND11_MODULE(touchdown, m) {
         .def("get_container", [](const app::TouchdownApp& self) {
             return reinterpret_cast<intptr_t>(self.get_container());
         })
-        .def("is_visible", &app::TouchdownApp::is_visible)
-        .def("is_paused", &app::TouchdownApp::is_paused);
+        .def("is_visible", &app::TouchdownApp::is_visibln)
+        .def("request_close", &app::TouchdownApp::request_close);
     
     // LVGL widget helpers
     py::class_<LVGLWidget>(m, "Widget")
