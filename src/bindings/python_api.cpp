@@ -165,7 +165,7 @@ PYBIND11_MODULE(touchdown, m) {
         .def_readwrite("x", &TouchPoint::x)
         .def_readwrite("y", &TouchPoint::y)
         .def_readwrite("type", &TouchPoint::type)
-        .def_readwrite("timestamp", &TouchPoint::timestamp);
+        .def_readwrite("timestamp_ms", &TouchPoint::timestamp_ms);
     
     // Button event types
     py::enum_<ButtonEventType>(m, "ButtonEventType")
@@ -178,7 +178,8 @@ PYBIND11_MODULE(touchdown, m) {
     py::class_<ButtonEvent>(m, "ButtonEvent")
         .def(py::init<>())
         .def_readwrite("type", &ButtonEvent::type)
-        .def_readwrite("timestamp", &ButtonEvent::timestamp);
+        .def_readwrite("timestamp_ms", &ButtonEvent::timestamp_ms)
+        .def_readwrite("duration_ms", &ButtonEvent::duration_ms);
     
     // App metadata
     py::class_<app::AppMetadata>(m, "AppMetadata")
@@ -207,9 +208,7 @@ PYBIND11_MODULE(touchdown, m) {
         .def("get_container", [](const app::TouchdownApp& self) {
             return reinterpret_cast<intptr_t>(self.get_container());
         })
-        .def("is_visible", &app::TouchdownApp::is_visible)
-        .def("is_paused", &app::TouchdownApp::is_paused)
-        .def("has_permission", &app::TouchdownApp::has_permission)
+        .def("is_visible", &app::TouchdownApp::is_visibln)
         .def("request_close", &app::TouchdownApp::request_close);
     
     // LVGL widget helpers

@@ -105,7 +105,7 @@ bool AppManager::launch_cpp_app(const std::string& app_id,
 
 bool AppManager::launch_python_app(const std::string& app_id,
                                   const std::string& script_path,
-                                  lv_obj_t* parent) {
+                                  lv_obj_t* /* parent */) {
     TD_LOG_INFO("AppManager", "Launching Python app: ", app_id);
     
     // Fork and execute Python script

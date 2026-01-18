@@ -108,13 +108,13 @@ bool ManifestParser::is_supported_type(const std::string& type) {
     return type == "cpp" || type == "python";
 }
 
-std::string ManifestParser::get_app_type(const AppMetadata& metadata) {
+std::string ManifestParser::get_app_type(const AppMetadata& /* metadata */) {
     // Type is stored in description for now
     // In full implementation, add 'type' field to AppMetadata
     return "cpp";  // Default
 }
 
-std::string ManifestParser::get_main_entry(const AppMetadata& metadata) {
+std::string ManifestParser::get_main_entry(const AppMetadata& /* metadata */) {
     // Main entry is stored in description for now
     // In full implementation, add 'main' field to AppMetadata
     return "";
