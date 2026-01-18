@@ -6,7 +6,7 @@ add_library(touchdown_apps STATIC
 
 target_link_libraries(touchdown_apps
     touchdown_app
-    touchdown_core
+    touchdown-core
     touchdown_shell
     lvgl
 )

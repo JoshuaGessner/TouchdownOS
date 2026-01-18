@@ -6,6 +6,7 @@
 #include "touchdown/app/app.hpp"
 #include "touchdown/shell/circular_layout.hpp"
 #include "touchdown/core/logger.hpp"
+#include <algorithm>
 
 namespace touchdown {
 namespace app {
@@ -39,7 +40,7 @@ bool TouchdownApp::has_permission(const std::string& permission) const {
 
 void TouchdownApp::request_close() {
     // Signal shell to close this app
-    LOG_INFO("TouchdownApp", "App requests close: ", metadata_.id);
+    TD_LOG_INFO("TouchdownApp", "App requests close: ", metadata_.id);
     // This would send D-Bus signal to shell
 }
 

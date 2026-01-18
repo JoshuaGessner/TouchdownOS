@@ -8,6 +8,7 @@
 #include "touchdown/core/utils.hpp"
 #include <xf86drm.h>
 #include <xf86drmMode.h>
+#include <drm_fourcc.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -40,19 +41,19 @@ DisplayDriver::~DisplayDriver() {
 }
 
 bool DisplayDriver::init(const std::string& device) {
-    LOG_INFO("DisplayDriver", "Initializing DRM display: ", device);
+    TD_LOG_INFO("DisplayDriver", "Initializing DRM display: ", device);
     
     // Open DRM device
     impl_->drm_fd = open(device.c_str(), O_RDWR | O_CLOEXEC);
     if (impl_->drm_fd < 0) {
-        LOG_ERROR("DisplayDriver", "Failed to open DRM device: ", device);
+        TD_LOG_ERROR("DisplayDriver", "Failed to open DRM device: ", device);
         return false;
     }
     
     // Get DRM resources
     drmModeRes* resources = drmModeGetResources(impl_->drm_fd);
     if (!resources) {
-        LOG_ERROR("DisplayDriver", "Failed to get DRM resources");
+        TD_LOG_ERROR("DisplayDriver", "Failed to get DRM resources");
         close(impl_->drm_fd);
         return false;
     }
@@ -71,7 +72,7 @@ bool DisplayDriver::init(const std::string& device) {
     }
     
     if (!connector) {
-        LOG_ERROR("DisplayDriver", "No connected display found");
+        TD_LOG_ERROR("DisplayDriver", "No connected display found");
         drmModeFreeResources(resources);
         close(impl_->drm_fd);
         return false;
@@ -102,7 +103,7 @@ bool DisplayDriver::init(const std::string& device) {
     create_dumb.bpp = 16;  // RGB565
     
     if (drmIoctl(impl_->drm_fd, DRM_IOCTL_MODE_CREATE_DUMB, &create_dumb) < 0) {
-        LOG_ERROR("DisplayDriver", "Failed to create dumb buffer");
+        TD_LOG_ERROR("DisplayDriver", "Failed to create dumb buffer");
         close(impl_->drm_fd);
         return false;
     }
@@ -114,7 +115,7 @@ bool DisplayDriver::init(const std::string& device) {
     
     if (drmModeAddFB2(impl_->drm_fd, impl_->width, impl_->height, DRM_FORMAT_RGB565,
                       handles, pitches, offsets, &impl_->fb_id, 0) < 0) {
-        LOG_ERROR("DisplayDriver", "Failed to create framebuffer");
+        TD_LOG_ERROR("DisplayDriver", "Failed to create framebuffer");
         close(impl_->drm_fd);
         return false;
     }
@@ -124,7 +125,7 @@ bool DisplayDriver::init(const std::string& device) {
     map_dumb.handle = create_dumb.handle;
     
     if (drmIoctl(impl_->drm_fd, DRM_IOCTL_MODE_MAP_DUMB, &map_dumb) < 0) {
-        LOG_ERROR("DisplayDriver", "Failed to map dumb buffer");
+        TD_LOG_ERROR("DisplayDriver", "Failed to map dumb buffer");
         close(impl_->drm_fd);
         return false;
     }
@@ -134,7 +135,7 @@ bool DisplayDriver::init(const std::string& device) {
                           impl_->drm_fd, map_dumb.offset);
     
     if (impl_->fb_base == MAP_FAILED) {
-        LOG_ERROR("DisplayDriver", "Failed to mmap framebuffer");
+        TD_LOG_ERROR("DisplayDriver", "Failed to mmap framebuffer");
         close(impl_->drm_fd);
         return false;
     }
@@ -142,7 +143,7 @@ bool DisplayDriver::init(const std::string& device) {
     // Set mode
     if (drmModeSetCrtc(impl_->drm_fd, impl_->crtc_id, impl_->fb_id, 0, 0,
                        &impl_->connector_id, 1, &impl_->mode) < 0) {
-        LOG_ERROR("DisplayDriver", "Failed to set CRTC mode");
+        TD_LOG_ERROR("DisplayDriver", "Failed to set CRTC mode");
         munmap(impl_->fb_base, impl_->fb_size);
         close(impl_->drm_fd);
         return false;
@@ -151,7 +152,7 @@ bool DisplayDriver::init(const std::string& device) {
     // Initialize LVGL display
     display_ = lv_display_create(impl_->width, impl_->height);
     if (!display_) {
-        LOG_ERROR("DisplayDriver", "Failed to create LVGL display");
+        TD_LOG_ERROR("DisplayDriver", "Failed to create LVGL display");
         return false;
     }
     
@@ -161,7 +162,7 @@ bool DisplayDriver::init(const std::string& device) {
     // Clear framebuffer
     std::memset(impl_->fb_base, 0, impl_->fb_size);
     
-    LOG_INFO("DisplayDriver", "Display initialized: ", impl_->width, "x", impl_->height);
+    TD_LOG_INFO("DisplayDriver", "Display initialized: ", impl_->width, "x", impl_->height);
     return true;
 }
 
@@ -187,7 +188,7 @@ void DisplayDriver::deinit() {
         impl_->drm_fd = -1;
     }
     
-    LOG_INFO("DisplayDriver", "Display deinitialized");
+    TD_LOG_INFO("DisplayDriver", "Display deinitialized");
 }
 
 void DisplayDriver::flush_cb(lv_display_t* disp, const lv_area_t* area, unsigned char* color_p) {
@@ -217,7 +218,7 @@ void DisplayDriver::set_brightness(uint8_t brightness) {
     // Brightness control via backlight sysfs
     std::string path = "/sys/class/backlight/";
     // Implementation depends on specific backlight device
-    LOG_DEBUG("DisplayDriver", "Set brightness: ", (int)brightness);
+    TD_LOG_DEBUG("DisplayDriver", "Set brightness: ", (int)brightness);
 }
 
 void DisplayDriver::set_power(bool on) {
@@ -240,7 +241,7 @@ void DisplayDriver::set_power(bool on) {
         drmModeFreeConnector(connector);
     }
     
-    LOG_INFO("DisplayDriver", "Display power: ", on ? "ON" : "OFF");
+    TD_LOG_INFO("DisplayDriver", "Display power: ", on ? "ON" : "OFF");
 }
 
 bool DisplayDriver::is_point_safe(int16_t x, int16_t y) {

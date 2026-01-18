@@ -21,13 +21,13 @@ AppManager::~AppManager() {
 }
 
 bool AppManager::init() {
-    LOG_INFO("AppManager", "Initializing app manager");
+    TD_LOG_INFO("AppManager", "Initializing app manager");
     
     // Scan for installed apps
     std::string apps_dir = "/usr/share/touchdown/apps";
     auto apps = registry_.scan_apps(apps_dir);
     
-    LOG_INFO("AppManager", "Found ", apps.size(), " installed apps");
+    TD_LOG_INFO("AppManager", "Found ", apps.size(), " installed apps");
     
     return true;
 }
@@ -35,7 +35,7 @@ bool AppManager::init() {
 bool AppManager::launch_app(const std::string& app_id, lv_obj_t* parent) {
     // Check if already running
     if (is_app_running(app_id)) {
-        LOG_WARNING("AppManager", "App already running: ", app_id);
+        TD_LOG_WARNING("AppManager", "App already running: ", app_id);
         
         // Bring to front
         auto& managed = apps_[app_id];
@@ -53,7 +53,7 @@ bool AppManager::launch_app(const std::string& app_id, lv_obj_t* parent) {
     app::AppMetadata metadata = registry_.load_metadata(manifest_path);
     
     if (metadata.id.empty()) {
-        LOG_ERROR("AppManager", "Failed to load metadata for: ", app_id);
+        TD_LOG_ERROR("AppManager", "Failed to load metadata for: ", app_id);
         return false;
     }
     
@@ -71,18 +71,18 @@ bool AppManager::launch_app(const std::string& app_id, lv_obj_t* parent) {
 bool AppManager::launch_cpp_app(const std::string& app_id,
                                const app::AppMetadata& metadata,
                                lv_obj_t* parent) {
-    LOG_INFO("AppManager", "Launching C++ app: ", app_id);
+    TD_LOG_INFO("AppManager", "Launching C++ app: ", app_id);
     
     // Create app instance
     auto app = registry_.create_app(app_id, metadata);
     if (!app) {
-        LOG_ERROR("AppManager", "Failed to create app: ", app_id);
+        TD_LOG_ERROR("AppManager", "Failed to create app: ", app_id);
         return false;
     }
     
     // Initialize app
     if (!app->init(parent)) {
-        LOG_ERROR("AppManager", "Failed to initialize app: ", app_id);
+        TD_LOG_ERROR("AppManager", "Failed to initialize app: ", app_id);
         return false;
     }
     
@@ -99,20 +99,20 @@ bool AppManager::launch_cpp_app(const std::string& app_id,
     apps_[app_id] = std::move(managed);
     active_app_id_ = app_id;
     
-    LOG_INFO("AppManager", "App launched successfully: ", app_id);
+    TD_LOG_INFO("AppManager", "App launched successfully: ", app_id);
     return true;
 }
 
 bool AppManager::launch_python_app(const std::string& app_id,
                                   const std::string& script_path,
                                   lv_obj_t* parent) {
-    LOG_INFO("AppManager", "Launching Python app: ", app_id);
+    TD_LOG_INFO("AppManager", "Launching Python app: ", app_id);
     
     // Fork and execute Python script
     pid_t pid = fork();
     
     if (pid < 0) {
-        LOG_ERROR("AppManager", "Fork failed for: ", app_id);
+        TD_LOG_ERROR("AppManager", "Fork failed for: ", app_id);
         return false;
     }
     
@@ -121,7 +121,7 @@ bool AppManager::launch_python_app(const std::string& app_id,
         execl("/usr/bin/python3", "python3", script_path.c_str(), nullptr);
         
         // If execl returns, it failed
-        LOG_ERROR("AppManager", "Failed to exec Python app: ", app_id);
+        TD_LOG_ERROR("AppManager", "Failed to exec Python app: ", app_id);
         exit(1);
     }
     
@@ -135,20 +135,20 @@ bool AppManager::launch_python_app(const std::string& app_id,
     apps_[app_id] = std::move(managed);
     active_app_id_ = app_id;
     
-    LOG_INFO("AppManager", "Python app launched with PID: ", pid);
+    TD_LOG_INFO("AppManager", "Python app launched with PID: ", pid);
     return true;
 }
 
 bool AppManager::pause_app(const std::string& app_id) {
     auto it = apps_.find(app_id);
     if (it == apps_.end()) {
-        LOG_WARNING("AppManager", "App not found: ", app_id);
+        TD_LOG_WARNING("AppManager", "App not found: ", app_id);
         return false;
     }
     
     auto& managed = it->second;
     if (managed.state != AppState::RUNNING) {
-        LOG_WARNING("AppManager", "App not running: ", app_id);
+        TD_LOG_WARNING("AppManager", "App not running: ", app_id);
         return false;
     }
     
@@ -160,20 +160,20 @@ bool AppManager::pause_app(const std::string& app_id) {
     }
     
     managed.state = AppState::PAUSED;
-    LOG_INFO("AppManager", "App paused: ", app_id);
+    TD_LOG_INFO("AppManager", "App paused: ", app_id);
     return true;
 }
 
 bool AppManager::resume_app(const std::string& app_id) {
     auto it = apps_.find(app_id);
     if (it == apps_.end()) {
-        LOG_WARNING("AppManager", "App not found: ", app_id);
+        TD_LOG_WARNING("AppManager", "App not found: ", app_id);
         return false;
     }
     
     auto& managed = it->second;
     if (managed.state != AppState::PAUSED) {
-        LOG_WARNING("AppManager", "App not paused: ", app_id);
+        TD_LOG_WARNING("AppManager", "App not paused: ", app_id);
         return false;
     }
     
@@ -186,14 +186,14 @@ bool AppManager::resume_app(const std::string& app_id) {
     
     managed.state = AppState::RUNNING;
     active_app_id_ = app_id;
-    LOG_INFO("AppManager", "App resumed: ", app_id);
+    TD_LOG_INFO("AppManager", "App resumed: ", app_id);
     return true;
 }
 
 bool AppManager::terminate_app(const std::string& app_id) {
     auto it = apps_.find(app_id);
     if (it == apps_.end()) {
-        LOG_WARNING("AppManager", "App not found: ", app_id);
+        TD_LOG_WARNING("AppManager", "App not found: ", app_id);
         return false;
     }
     
@@ -217,7 +217,7 @@ bool AppManager::terminate_app(const std::string& app_id) {
         active_app_id_.clear();
     }
     
-    LOG_INFO("AppManager", "App terminated: ", app_id);
+    TD_LOG_INFO("AppManager", "App terminated: ", app_id);
     return true;
 }
 
@@ -267,7 +267,7 @@ void AppManager::update(uint32_t delta_ms) {
             
             if (result > 0) {
                 // Process exited
-                LOG_INFO("AppManager", "Python app exited: ", it->first);
+                TD_LOG_INFO("AppManager", "Python app exited: ", it->first);
                 it = apps_.erase(it);
                 continue;
             }
@@ -305,7 +305,7 @@ std::vector<std::string> AppManager::get_running_apps() const {
 }
 
 void AppManager::cleanup() {
-    LOG_INFO("AppManager", "Cleaning up all apps");
+    TD_LOG_INFO("AppManager", "Cleaning up all apps");
     
     // Terminate all apps
     std::vector<std::string> app_ids;

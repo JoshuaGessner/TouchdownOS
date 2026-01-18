@@ -36,6 +36,7 @@ endif()
 include_directories(
     ${CMAKE_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/third_party/nlohmann
     ${DRM_INCLUDE_DIRS}
     ${DBUS_INCLUDE_DIRS}
     ${SYSTEMD_INCLUDE_DIRS}

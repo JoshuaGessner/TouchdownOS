@@ -4,6 +4,7 @@
  */
 
 #include "touchdown/apps/settings_app.hpp"
+#include "touchdown/app/app_registry.hpp"
 #include "touchdown/shell/theme_engine.hpp"
 #include "touchdown/shell/circular_layout.hpp"
 #include "touchdown/core/logger.hpp"
@@ -21,7 +22,7 @@ SettingsApp::~SettingsApp() {
 }
 
 bool SettingsApp::init(lv_obj_t* parent) {
-    LOG_INFO("SettingsApp", "Initializing settings app");
+    TD_LOG_INFO("SettingsApp", "Initializing settings app");
     
     // Create container
     create_container(parent);
@@ -78,23 +79,23 @@ void SettingsApp::create_ui() {
 
 void SettingsApp::create_setting_item(const SettingItem& item, int index) {
     lv_obj_t* btn = lv_list_add_btn(list_, LV_SYMBOL_SETTINGS, item.label.c_str());
-    
-    // Store callback in user data
-    lv_obj_set_user_data(btn, (void*)&item.on_click);
-    
-    // Add click handler
-    lv_obj_add_event_cb(btn, [](lv_event_t* e) {
-        auto* callback = (std::function<void()>*)lv_obj_get_user_data(lv_event_get_target(e));
-        if (callback) {
-            (*callback)();
-        }
-    }, LV_EVENT_CLICKED, nullptr);
-    
+    // Store callback and use index-based dispatch to avoid user-data type issues
+    callbacks_.push_back(item.on_click);
     items_.push_back(btn);
+
+    lv_obj_add_event_cb(btn, [](lv_event_t* e) {
+        auto* self = static_cast<SettingsApp*>(lv_event_get_user_data(e));
+        if (!self) return;
+        lv_obj_t* target = lv_event_get_target_obj(e);
+        uint32_t idx = lv_obj_get_index(target);
+        if (idx < self->callbacks_.size()) {
+            self->callbacks_[idx]();
+        }
+    }, LV_EVENT_CLICKED, this);
 }
 
 void SettingsApp::on_theme_toggle() {
-    LOG_INFO("SettingsApp", "Toggle theme");
+    TD_LOG_INFO("SettingsApp", "Toggle theme");
     
     auto& theme = shell::ThemeEngine::instance();
     auto current = theme.get_mode();
@@ -111,7 +112,7 @@ void SettingsApp::on_theme_toggle() {
 }
 
 void SettingsApp::on_brightness_adjust() {
-    LOG_INFO("SettingsApp", "Adjust brightness");
+    TD_LOG_INFO("SettingsApp", "Adjust brightness");
     
     // TODO: Create brightness slider popup
     // For now, just toggle between 50% and 100%
@@ -125,7 +126,7 @@ void SettingsApp::on_brightness_adjust() {
 }
 
 void SettingsApp::on_about() {
-    LOG_INFO("SettingsApp", "Show about");
+    TD_LOG_INFO("SettingsApp", "Show about");
     
     // Create modal dialog
     lv_obj_t* dialog = lv_obj_create(container_);
@@ -161,7 +162,7 @@ void SettingsApp::hide() {
 }
 
 void SettingsApp::cleanup() {
-    LOG_INFO("SettingsApp", "Cleanup");
+    TD_LOG_INFO("SettingsApp", "Cleanup");
     items_.clear();
 }
 
@@ -183,4 +184,8 @@ bool SettingsApp::on_button(const ButtonEvent& event) {
 } // namespace touchdown
 
 // Register the app
-REGISTER_APP(touchdown::apps::SettingsApp, "settings")
+namespace touchdown {
+namespace apps {
+REGISTER_APP(SettingsApp, "settings")
+} // namespace apps
+} // namespace touchdown

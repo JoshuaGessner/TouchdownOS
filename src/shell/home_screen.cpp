@@ -42,7 +42,7 @@ void HomeScreen::create(lv_obj_t* parent) {
     create_status_indicators();
     create_quick_actions();
     
-    LOG_INFO("HomeScreen", "Home screen created");
+    TD_LOG_INFO("HomeScreen", "Home screen created");
 }
 
 void HomeScreen::create_time_widget() {

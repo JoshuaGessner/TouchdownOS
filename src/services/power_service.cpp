@@ -57,7 +57,7 @@ bool PowerService::init(drivers::DisplayDriver* display) {
     
     last_activity_time_ = Utils::get_timestamp_ms();
     
-    LOG_INFO("PowerService", "Power service initialized");
+    TD_LOG_INFO("PowerService", "Power service initialized");
     return true;
 }
 
@@ -91,7 +91,7 @@ void PowerService::stop() {
 void PowerService::set_power_state(PowerState state) {
     if (power_state_ == state) return;
     
-    LOG_INFO("PowerService", "Changing power state: ", static_cast<int>(power_state_), 
+    TD_LOG_INFO("PowerService", "Changing power state: ", static_cast<int>(power_state_), 
              " -> ", static_cast<int>(state));
     
     power_state_ = state;
@@ -127,11 +127,11 @@ void PowerService::apply_power_state(PowerState state) {
             
         case PowerState::SUSPENDED:
             // Full system suspend (not implemented yet)
-            LOG_WARNING("PowerService", "System suspend not yet implemented");
+            TD_LOG_WARNING("PowerService", "System suspend not yet implemented");
             break;
             
         case PowerState::SHUTDOWN:
-            LOG_INFO("PowerService", "Initiating system shutdown");
+            TD_LOG_INFO("PowerService", "Initiating system shutdown");
             // Trigger systemd shutdown
             system("systemctl poweroff");
             break;
@@ -147,7 +147,7 @@ void PowerService::apply_cpu_scaling(const std::string& governor) {
         if (file.is_open()) {
             file << governor;
             file.close();
-            LOG_DEBUG("PowerService", "Set CPU", cpu, " governor: ", governor);
+            TD_LOG_DEBUG("PowerService", "Set CPU", cpu, " governor: ", governor);
         }
     }
 }
@@ -160,14 +160,14 @@ void PowerService::check_idle_timeout() {
     uint32_t idle_time = now - last_activity_time_;
     
     if (idle_time >= screen_timeout_ms_) {
-        LOG_INFO("PowerService", "Screen timeout reached, turning off display");
+        TD_LOG_INFO("PowerService", "Screen timeout reached, turning off display");
         set_power_state(PowerState::SCREEN_OFF);
     }
 }
 
 void PowerService::set_screen_timeout(uint32_t timeout_ms) {
     screen_timeout_ms_ = timeout_ms;
-    LOG_INFO("PowerService", "Screen timeout set to: ", timeout_ms, "ms");
+    TD_LOG_INFO("PowerService", "Screen timeout set to: ", timeout_ms, "ms");
 }
 
 void PowerService::reset_idle_timer() {

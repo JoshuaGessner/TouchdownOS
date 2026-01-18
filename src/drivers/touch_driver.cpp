@@ -48,16 +48,16 @@ TouchDriver::~TouchDriver() {
 }
 
 bool TouchDriver::init(const std::string& device, uint8_t address) {
-    LOG_INFO("TouchDriver", "Initializing touch controller: ", device);
+    TD_LOG_INFO("TouchDriver", "Initializing touch controller: ", device);
     
     impl_->i2c_fd = open(device.c_str(), O_RDWR);
     if (impl_->i2c_fd < 0) {
-        LOG_ERROR("TouchDriver", "Failed to open I2C device: ", device);
+        TD_LOG_ERROR("TouchDriver", "Failed to open I2C device: ", device);
         return false;
     }
     
     if (ioctl(impl_->i2c_fd, I2C_SLAVE, address) < 0) {
-        LOG_ERROR("TouchDriver", "Failed to set I2C slave address: ", (int)address);
+        TD_LOG_ERROR("TouchDriver", "Failed to set I2C slave address: ", (int)address);
         close(impl_->i2c_fd);
         return false;
     }
@@ -67,7 +67,7 @@ bool TouchDriver::init(const std::string& device, uint8_t address) {
     // Initialize LVGL input device
     indev_ = lv_indev_create();
     if (!indev_) {
-        LOG_ERROR("TouchDriver", "Failed to create LVGL input device");
+        TD_LOG_ERROR("TouchDriver", "Failed to create LVGL input device");
         close(impl_->i2c_fd);
         return false;
     }
@@ -76,7 +76,7 @@ bool TouchDriver::init(const std::string& device, uint8_t address) {
     lv_indev_set_read_cb(indev_, read_cb);
     lv_indev_set_user_data(indev_, this);
     
-    LOG_INFO("TouchDriver", "Touch controller initialized");
+    TD_LOG_INFO("TouchDriver", "Touch controller initialized");
     return true;
 }
 
@@ -86,7 +86,7 @@ void TouchDriver::deinit() {
         impl_->i2c_fd = -1;
     }
     
-    LOG_INFO("TouchDriver", "Touch controller deinitialized");
+    TD_LOG_INFO("TouchDriver", "Touch controller deinitialized");
 }
 
 void TouchDriver::read_cb(lv_indev_t* indev, lv_indev_data_t* data) {
@@ -213,7 +213,7 @@ void TouchDriver::set_touch_callback(TouchCallback callback) {
 
 void TouchDriver::set_sensitivity(uint8_t sensitivity) {
     // CST816S sensitivity adjustment (if supported by firmware)
-    LOG_DEBUG("TouchDriver", "Set sensitivity: ", (int)sensitivity);
+    TD_LOG_DEBUG("TouchDriver", "Set sensitivity: ", (int)sensitivity);
 }
 
 } // namespace drivers

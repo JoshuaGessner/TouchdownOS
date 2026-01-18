@@ -12,7 +12,6 @@ target_include_directories(touchdown-drivers PUBLIC
 target_link_libraries(touchdown-drivers
     touchdown-core
     lvgl
-    lv_drivers
     ${DRM_LIBRARIES}
 )
 

@@ -38,7 +38,7 @@ ButtonDriver::~ButtonDriver() {
 }
 
 bool ButtonDriver::init(int gpio_pin) {
-    LOG_INFO("ButtonDriver", "Initializing button on GPIO: ", gpio_pin);
+    TD_LOG_INFO("ButtonDriver", "Initializing button on GPIO: ", gpio_pin);
     
     impl_->gpio_pin = gpio_pin;
     
@@ -55,7 +55,7 @@ bool ButtonDriver::init(int gpio_pin) {
                 if (device_name.find("Power Button") != std::string::npos ||
                     device_name.find("touchdown-button") != std::string::npos) {
                     impl_->event_fd = fd;
-                    LOG_INFO("ButtonDriver", "Found button device: ", device_name);
+                    TD_LOG_INFO("ButtonDriver", "Found button device: ", device_name);
                     break;
                 }
             }
@@ -64,7 +64,7 @@ bool ButtonDriver::init(int gpio_pin) {
     }
     
     if (impl_->event_fd < 0) {
-        LOG_ERROR("ButtonDriver", "Failed to find button event device");
+        TD_LOG_ERROR("ButtonDriver", "Failed to find button event device");
         return false;
     }
     
@@ -72,7 +72,7 @@ bool ButtonDriver::init(int gpio_pin) {
     running_ = true;
     monitor_thread_ = std::thread(&ButtonDriver::monitor_thread, this);
     
-    LOG_INFO("ButtonDriver", "Button driver initialized");
+    TD_LOG_INFO("ButtonDriver", "Button driver initialized");
     return true;
 }
 
@@ -88,7 +88,7 @@ void ButtonDriver::deinit() {
         impl_->event_fd = -1;
     }
     
-    LOG_INFO("ButtonDriver", "Button driver deinitialized");
+    TD_LOG_INFO("ButtonDriver", "Button driver deinitialized");
 }
 
 void ButtonDriver::monitor_thread() {
@@ -137,14 +137,14 @@ void ButtonDriver::process_button_event(bool pressed) {
         press_start_time_ = now;
         last_state_ = true;
         
-        LOG_DEBUG("ButtonDriver", "Button pressed");
+        TD_LOG_DEBUG("ButtonDriver", "Button pressed");
         
     } else if (!pressed && last_state_) {
         // Button released
         uint32_t duration = now - press_start_time_;
         last_state_ = false;
         
-        LOG_DEBUG("ButtonDriver", "Button released, duration: ", duration, "ms");
+        TD_LOG_DEBUG("ButtonDriver", "Button released, duration: ", duration, "ms");
         
         if (duration >= long_press_threshold_ms_) {
             // Long press

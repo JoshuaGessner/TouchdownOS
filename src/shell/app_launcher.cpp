@@ -3,6 +3,8 @@
  * @brief App launcher implementation
  */
 
+#include <algorithm>
+
 #include "touchdown/shell/app_launcher.hpp"
 #include "touchdown/shell/theme_engine.hpp"
 #include "touchdown/shell/circular_layout.hpp"
@@ -34,14 +36,14 @@ void AppLauncher::create(lv_obj_t* parent) {
     // Initially hidden
     lv_obj_add_flag(container_, LV_OBJ_FLAG_HIDDEN);
     
-    LOG_INFO("AppLauncher", "App launcher created");
+    TD_LOG_INFO("AppLauncher", "App launcher created");
 }
 
 void AppLauncher::add_app(const AppInfo& app) {
     apps_.push_back(app);
     refresh_layout();
     
-    LOG_INFO("AppLauncher", "Added app: ", app.name);
+    TD_LOG_INFO("AppLauncher", "Added app: ", app.name);
 }
 
 void AppLauncher::remove_app(const std::string& app_id) {
@@ -51,7 +53,7 @@ void AppLauncher::remove_app(const std::string& app_id) {
     if (it != apps_.end()) {
         apps_.erase(it, apps_.end());
         refresh_layout();
-        LOG_INFO("AppLauncher", "Removed app: ", app_id);
+        TD_LOG_INFO("AppLauncher", "Removed app: ", app_id);
     }
 }
 
@@ -106,12 +108,12 @@ void AppLauncher::create_app_button(const AppInfo& app, int16_t x, int16_t y) {
 }
 
 void AppLauncher::on_app_clicked(lv_event_t* e) {
-    lv_obj_t* btn = lv_event_get_target(e);
+    lv_obj_t* btn = lv_event_get_target_obj(e);
     AppLauncher* launcher = static_cast<AppLauncher*>(lv_event_get_user_data(e));
     
     const char* app_id = static_cast<const char*>(lv_obj_get_user_data(btn));
     
-    LOG_INFO("AppLauncher", "App clicked: ", app_id);
+    TD_LOG_INFO("AppLauncher", "App clicked: ", app_id);
     
     if (launcher && launcher->launch_callback_ && app_id) {
         launcher->launch_callback_(app_id);

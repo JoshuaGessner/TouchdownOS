@@ -19,7 +19,7 @@ void ThemeEngine::init() {
     load_dark_palette();
     apply_theme();
     
-    LOG_INFO("ThemeEngine", "Theme engine initialized");
+    TD_LOG_INFO("ThemeEngine", "Theme engine initialized");
 }
 
 void ThemeEngine::load_dark_palette() {
@@ -55,7 +55,7 @@ void ThemeEngine::load_light_palette() {
 void ThemeEngine::set_mode(ThemeMode mode) {
     if (mode == current_mode_) return;
     
-    LOG_INFO("ThemeEngine", "Changing theme mode: ", static_cast<int>(mode));
+    TD_LOG_INFO("ThemeEngine", "Changing theme mode: ", static_cast<int>(mode));
     
     current_mode_ = mode;
     
@@ -87,7 +87,7 @@ void ThemeEngine::apply_theme() {
     
     lv_display_set_theme(lv_display_get_default(), lvgl_theme_);
     
-    LOG_INFO("ThemeEngine", "Theme applied");
+    TD_LOG_INFO("ThemeEngine", "Theme applied");
 }
 
 lv_style_t ThemeEngine::create_card_style() {

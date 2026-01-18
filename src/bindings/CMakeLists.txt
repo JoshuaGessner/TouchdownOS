@@ -6,7 +6,7 @@ if(pybind11_FOUND)
     
     target_link_libraries(touchdown PRIVATE
         touchdown_app
-        touchdown_core
+        touchdown-core
         lvgl
     )
     
